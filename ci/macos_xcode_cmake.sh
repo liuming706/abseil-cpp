@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script is invoked on Kokoro to test Abseil on MacOS.
+# This script is invoked on Kokoro to test Abseil on macOS.
 # It is not hermetic and may break when Kokoro is updated.
 
 set -euox pipefail
@@ -36,6 +36,7 @@ for compilation_mode in ${ABSL_CMAKE_BUILD_TYPES}; do
   time cmake ${ABSEIL_ROOT} \
     -GXcode \
     -DCMAKE_BUILD_TYPE=${compilation_mode} \
+    -DCMAKE_CXX_FLAGS=-std=c++14 \
     -DABSL_USE_GOOGLETEST_HEAD=ON \
     -DABSL_RUN_TESTS=ON
   time cmake --build .

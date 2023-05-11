@@ -36,6 +36,7 @@ constexpr int32_t kNumThreads = 10;
 constexpr int32_t kIters = 1000;
 
 namespace absl {
+ABSL_NAMESPACE_BEGIN
 namespace base_internal {
 
 // This is defined outside of anonymous namespace so that it can be
@@ -61,7 +62,6 @@ static SpinLock static_cooperative_spinlock(
     base_internal::SCHEDULE_COOPERATIVE_AND_KERNEL);
 static SpinLock static_noncooperative_spinlock(
     base_internal::kLinkerInitialized, base_internal::SCHEDULE_KERNEL_ONLY);
-
 
 // Simple integer hash function based on the public domain lookup2 hash.
 // http://burtleburtle.net/bob/c/lookup2.c
@@ -194,6 +194,7 @@ TEST(SpinLock, WaitCyclesEncoding) {
 TEST(SpinLockWithThreads, StaticSpinLock) {
   ThreadedTest(&static_spinlock);
 }
+
 TEST(SpinLockWithThreads, StackSpinLock) {
   SpinLock spinlock;
   ThreadedTest(&spinlock);
@@ -266,4 +267,5 @@ TEST(SpinLockWithThreads, DoesNotDeadlock) {
 
 }  // namespace
 }  // namespace base_internal
+ABSL_NAMESPACE_END
 }  // namespace absl

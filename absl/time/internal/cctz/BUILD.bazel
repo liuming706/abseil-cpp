@@ -12,21 +12,32 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
+
 package(features = ["-parse_headers"])
 
 licenses(["notice"])  # Apache License
 
-### libraries
-
-cc_library(
-    name = "includes",
-    textual_hdrs = [
-        "include/cctz/civil_time.h",
-        "include/cctz/civil_time_detail.h",
-        "include/cctz/time_zone.h",
-    ],
-    visibility = ["//absl/time:__pkg__"],
+filegroup(
+    name = "zoneinfo",
+    srcs = glob(["testdata/zoneinfo/**"]),
 )
+
+config_setting(
+    name = "osx",
+    constraint_values = [
+        "@bazel_tools//platforms:osx",
+    ],
+)
+
+config_setting(
+    name = "ios",
+    constraint_values = [
+        "@bazel_tools//platforms:ios",
+    ],
+)
+
+### libraries
 
 cc_library(
     name = "civil_time",
@@ -36,6 +47,7 @@ cc_library(
     ],
     textual_hdrs = ["include/cctz/civil_time_detail.h"],
     visibility = ["//visibility:public"],
+    deps = ["//absl/base:config"],
 )
 
 cc_library(
@@ -62,8 +74,20 @@ cc_library(
         "include/cctz/time_zone.h",
         "include/cctz/zone_info_source.h",
     ],
+    linkopts = select({
+        ":osx": [
+            "-framework Foundation",
+        ],
+        ":ios": [
+            "-framework Foundation",
+        ],
+        "//conditions:default": [],
+    }),
     visibility = ["//visibility:public"],
-    deps = [":civil_time"],
+    deps = [
+        ":civil_time",
+        "//absl/base:config",
+    ],
 )
 
 ### tests
@@ -74,6 +98,7 @@ cc_test(
     srcs = ["src/civil_time_test.cc"],
     deps = [
         ":civil_time",
+        "//absl/base:config",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -91,6 +116,7 @@ cc_test(
     deps = [
         ":civil_time",
         ":time_zone",
+        "//absl/base:config",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -109,6 +135,7 @@ cc_test(
     deps = [
         ":civil_time",
         ":time_zone",
+        "//absl/base:config",
         "@com_google_googletest//:gtest_main",
     ],
 )
@@ -129,6 +156,7 @@ cc_test(
     deps = [
         ":civil_time",
         ":time_zone",
+        "//absl/base:config",
         "@com_github_google_benchmark//:benchmark_main",
     ],
 )
@@ -136,8 +164,3 @@ cc_test(
 ### examples
 
 ### binaries
-
-filegroup(
-    name = "zoneinfo",
-    srcs = glob(["testdata/zoneinfo/**"]),
-)
